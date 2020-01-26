@@ -52,7 +52,7 @@ class Publication(BaseModel):
 
     def __str__(self):
         """Return publication title."""
-        return "#{} - {} {}".format(self.title, self.branch, self.model)
+        return "#{}".format(self.title)
 
     def get_pictures(self):
         """Get all images of the publication"""

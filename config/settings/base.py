@@ -54,6 +54,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'curso_api_rest.users.apps.UsersAppConfig',
+    'curso_api_rest.publications.apps.PublicationsAppConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

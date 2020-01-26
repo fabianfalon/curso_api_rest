@@ -1,2 +1,2 @@
-from .categories import Category
-from .publications import Publication, PublicationPicture
+from .categories import Category # NOQA
+from .publications import Publication, PublicationPicture # NOQA

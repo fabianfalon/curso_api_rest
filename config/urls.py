@@ -8,5 +8,9 @@ from django.urls import include, path
 urlpatterns = [
     # Django Admin
     path(settings.ADMIN_URL, admin.site.urls),
-    path('api/v1/', include(('curso_api_rest.users.urls', 'users'), namespace='users'))
+    path('api/v1/', include(('curso_api_rest.users.urls', 'users'), namespace='users')),
+    path(
+        'api/v1/', include(
+            ('curso_api_rest.publications.urls', 'publications'), namespace='publications')
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

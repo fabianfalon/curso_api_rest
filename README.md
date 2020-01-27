@@ -1,51 +1,98 @@
-# Paso 3: Primera aproximación a la vista de publicaciones
+# Paso 4: Serializers
 
-Crearemos una vista para listar todas las publiciones, para esto tenemos que instalar django rest framework, en nuestro archivo de requirementes ya lo habiamos incluido, tambien lo agregamos en la parte de THIRD_PARTY_APPS
+Según la [documentacion de DRF](https://www.django-rest-framework.org/api-guide/serializers/) los serializers son contenedores que nos permiten tomar tipos de datos complejos y convertirlos a tipos de datos nativos de python para luego usarlo como JSON u XML.
+Los serializadores también proporcionan deserialización, permitiendo que los datos analizados se conviertan nuevamente en tipos complejos, después de validar primero los datos entrantes.
+
+Los serializadores en DRF funciona muy similar a los forms de django
+
+Creamos nuestro serializers para publicaciones, para ello agregamos una carpeta serializers la cual contendra dos archivos, uno para categorias y otro para publicaciones
+
+En la documentacion de drf podemos ver los [tipos de datos](https://www.django-rest-framework.org/api-guide/fields/#booleanfield)
+
+Nuestro serializador de publicaciones quedaria como se muestra en el ejemplo siguiente
 
 ```
-THIRD_PARTY_APPS = [
-    'rest_framework',
-]
+from rest_framework import serializers
+
+class PublicationSerializer(serializers.Serializer):
+    """PublicationSerializer"""
+    title = serializers.CharField()
+    description = serializers.CharField()
+    type_of_publication = serializers.CharField()
+    price = serializers.DecimalField(max_digits=5, decimal_places=2)
+    is_active = serializers.BooleanField()
 ```
 
-Creamos la vista para mostrar nuestras publicaciones
+Tambien crearemos el serializador para categorias, el cual utilizaremos luego.
+
+```
+from rest_framework import serializers
+
+class CategorySerializer(serializers.Serializer):
+    """CategorySerializer"""
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+```
+
+Nuestra vista de publicaciones cambiara un poco, ahora importaremos el serializer de publicaciones
+y lo usaremos para serializar la informacion dentro del for.
 
 ```
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+# Models
 from curso_api_rest.publications.models import Publication
 
+# Serializers
+from curso_api_rest.publications.serializers import PublicationSerializer
 
-@api_view(["GET"]) # decorador
+
+@api_view(["GET"])
 def list_publications(request):
     """List publications"""
     publications = Publication.objects.all()
     data = []
     for publication in publications:
-        data.append({
-            "title": publication.title,
-            "description": publication.description,
-            "type_of_publication": publication.type_of_publication,
-            "price": publication.price,
-            "is_active": publication.is_active
-        })
+        serializer = PublicationSerializer(publication)
+        data.append(serializer.data)
     return Response(data)
 ```
 
-en nuestra funcion list_publications agregamos el decorador @api_view, le decimos que por ahora solo permitira recibir peticiones del tipo GET, al agregar este decorador, response ya no es el response de django sino el que provee DRF y este se encarga de hacer el parseo de la data.
-
-En el archivo de urls de la aplicacion publications, agregamos la url para listar las publicaciones
+Hasta ahora las publicaciones no se estaban mostrando con todos sus atributos, faltaban datos como categorias y profile, para agregar la informacion de categorias solamente necesitamos hacer uso de CategorySerializer en PublicationSerializer. De esta forma podremos ver la informacion de la categoria a la que pertenece la publicación
 
 ```
-# Django
-from django.urls import path
+from rest_framework import serializers
 
-# Views
-from curso_api_rest.publications.views.publications import list_publications
+from curso_api_rest.publications.serializers.categories import CategorySerializer
 
-urlpatterns = [
-    path("publications/", list_publications)
-]
+class PublicationSerializer(serializers.Serializer):
+    """PublicationSerializer"""
+    title = serializers.CharField()
+    description = serializers.CharField()
+    type_of_publication = serializers.CharField()
+    price = serializers.DecimalField(max_digits=5, decimal_places=2)
+    is_active = serializers.BooleanField()
+    category = CategorySerializer()
 ```
-Con esto ya tendriamos nuestra primer vista usando DRF.
+
+Vemos que con el uso de serializer nos ahorramos varias lineas de codigo en nuestra view, pero podemos simplificar la vista aun mas
+
+```
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+# Models
+from curso_api_rest.publications.models import Publication
+
+# Serializers
+from curso_api_rest.publications.serializers import PublicationSerializer
+
+
+@api_view(["GET"])
+def list_publications(request):
+    """List publications"""
+    publications = Publication.objects.all()
+    serializer = PublicationSerializer(publications, many=True)
+    return Response(serializer.data)
+```

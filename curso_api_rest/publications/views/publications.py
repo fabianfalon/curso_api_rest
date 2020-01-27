@@ -1,20 +1,16 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+# Models
 from curso_api_rest.publications.models import Publication
+
+# Serializers
+from curso_api_rest.publications.serializers import PublicationSerializer
 
 
 @api_view(["GET"])
 def list_publications(request):
     """List publications"""
     publications = Publication.objects.all()
-    data = []
-    for publication in publications:
-        data.append({
-            "title": publication.title,
-            "description": publication.description,
-            "type_of_publication": publication.type_of_publication,
-            "price": publication.price,
-            "is_active": publication.is_active
-        })
-    return Response(data)
+    serializer = PublicationSerializer(publications, many=True)
+    return Response(serializer.data)

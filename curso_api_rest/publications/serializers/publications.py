@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from curso_api_rest.publications.serializers.categories import CategorySerializer
 
+
 class PublicationSerializer(serializers.Serializer):
     """PublicationSerializer"""
     title = serializers.CharField()

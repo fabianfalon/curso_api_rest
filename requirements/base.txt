@@ -8,7 +8,7 @@ PyJWT==1.6.4
 isort==4.3.4
 
 # Django
-django==2.2.9
+django==2.2.13
 
 # Django REST Framework
 djangorestframework==3.9.3
